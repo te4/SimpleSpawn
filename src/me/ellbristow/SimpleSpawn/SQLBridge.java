@@ -3,6 +3,8 @@ package me.ellbristow.SimpleSpawn;
 import java.io.File;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SQLBridge {
 
@@ -30,7 +32,7 @@ public class SQLBridge {
             conn = DriverManager.getConnection("jdbc:sqlite:" + sqlFile.getAbsolutePath());
             return conn;
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
+            plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
         }
         return null;
     }
@@ -40,23 +42,30 @@ public class SQLBridge {
             try {
                 conn.close();
             } catch (Exception e) {
-                plugin.getLogger().severe(e.getMessage());
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
             }
         }
     }
     
     public boolean checkTable(String tableName) {
         DatabaseMetaData dbm = null;
+        ResultSet tables = null;
         try {
             dbm = this.open().getMetaData();
-            ResultSet tables = dbm.getTables(null, null, tableName, null);
+            tables = dbm.getTables(null, null, tableName, null);
             if (tables.next())
                 return true;
             else
                 return false;
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
+            plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
             return false;
+        } finally {
+            try {
+                tables.close();
+            } catch (SQLException e) {
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
+            }
         }
     }
     
@@ -73,7 +82,13 @@ public class SQLBridge {
             query += ")";
             statement.execute(query);
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
+            plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
+            }
         }
         return true;
     }
@@ -86,17 +101,13 @@ public class SQLBridge {
             return results;
         } catch (Exception e) {
             if (!e.getMessage().contains("not return ResultSet") || (e.getMessage().contains("not return ResultSet") && query.startsWith("SELECT"))) {
-                plugin.getLogger().severe(e.getMessage());
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
             }
+        } finally {
             try {
-                results.close();
-            } catch (Exception ex) {
-            }
-        }
-        if (results != null) {
-            try {
-                results.close();
-            } catch (Exception ex) {
+                statement.close();
+            } catch (Exception e) {
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
             }
         }
         return null;
@@ -141,18 +152,17 @@ public class SQLBridge {
                     rows.put(numRows, thisColumn);
                     numRows++;
                 }
-                results.close();
                 return rows;
             } else {
                 return null;
             }
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
-            if (results != null) {
-                try {
-                    results.close();
-                } catch (Exception ex) {
-                }
+            plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
+        } finally {
+            try {
+                statement.close();
+            } catch (Exception e) {
+                plugin.getLogger().severe(e.getMessage() + e.getStackTrace()[0].getLineNumber());
             }
         }
         return null;

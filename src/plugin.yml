@@ -11,8 +11,6 @@ commands:
     description: Set spawn location
   spawn:
     description: Teleport to spawn location
-  sethome:
-    description: Set home location.
   home:
     description: Teleport to home location
   setjail:
@@ -30,14 +28,10 @@ permissions:
       simplespawn.set: true
       simplespawn.use: true
       simplespawn.use.worlds: true
-      simplespawn.home.*: true
+      simplespawn.home: true
       simplespawn.jail.*: true
-  simplespawn.home.*:
-    description: Access to /home and /sethome
-    children:
-      simplespawn.home.set: true
-      simplespawn.home.set.others: true
-      simplespawn.home.use: true
+  simplespawn.home:
+    description: Access to /home
   simplespawn.jail.*:
     description: Access to /jail and /setjail
     children:
@@ -45,6 +39,7 @@ permissions:
       simplespawn.jail.use: true
       simplespawn.jail.release: true
       simplespawn.jail.immune: true
+      simplespawn.jail.list: true
   simplespawn.use.default:
     description: Access to /spawn for SSdefault location
   simplespawn.set:
@@ -53,11 +48,7 @@ permissions:
     description: Access to /spawn
   simplespawn.use.worlds:
     description: Access to /spawn {worldName}
-  simplespawn.home.set:
-    description: Access to /sethome
-  simplespawn.home.set.others:
-    description: Access to /sethome {playerName}
-  simplespawn.home.use:
+  simplespawn.home:
     description: Access to /home
   simplespawn.jail.use:
     description: Access to /jail
